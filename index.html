@@ -1,0 +1,87 @@
+<html>
+    <head>
+        <title>Surveillance</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            #map {
+              height: 100%;
+            }
+            html, body {
+              height: 100%;
+              margin: 0;
+              padding: 0;
+            }
+          </style>
+    </head>
+    <body>
+    <div id="map"></div>
+    <script>
+      var map;
+
+      function plotMarkers(data){
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 13.0827, lng: 80.2707},
+          zoom: 10
+        });
+        
+        for(i=0; i<data.length;i++){
+            var icon='';
+            if(data[i]["severity"]=="low"){
+                icon = "http://maps.google.com/mapfiles/ms/icons/purple-dot.png"
+            }
+            else if(data[i]["severity"]=="medium"){
+                icon = "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+            }
+            else if(data[i]["severity"]=="high"){
+                icon = "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            }
+            marker = new google.maps.Marker({
+            position: new google.maps.LatLng(data[i]["lat"],data[i]["lng"]),
+            animation: google.maps.Animation.DROP,
+            icon: icon,
+            map: map,
+            title: `Lat:${data[i]["lat"]}\nLng:${data[i]["lng"]}\nSeverity:${data[i]["severity"]}`
+        });
+        }
+      }
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 13.0827, lng: 80.2707},
+          zoom: 10
+        });
+        plotMarkers(data);
+      }
+
+      data = [{"lat": 13.0827,"lng": 80.2707, "severity": "low"}, {"lat": 12.9721,"lng": 79.1596, "severity": "medium"}, {"lat": 12.8406,"lng": 80.1534, "severity": "high"}, {"lat": 13.0551,"lng": 80.2221,"severity": "high"}];
+      
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyCL6rgwToR2YiXAS1fcn5qvzrc9X5loCrU",
+        authDomain: "watchout-bdbac.firebaseapp.com",
+        databaseURL: "https://watchout-bdbac.firebaseio.com",
+        projectId: "watchout-bdbac",
+        storageBucket: "watchout-bdbac.appspot.com",
+        messagingSenderId: "443264828838"
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script>
+      var database = firebase.database();
+      var starCountRef = database.ref('/');
+      starCountRef.on('value', function(snapshot) {
+        console.log(snapshot.val());
+        m = snapshot.val();
+        console.log(m.length);
+        console.log(m[0], m[1], m[2])
+      }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0fe9J6bUIKe8j0ZCnV3ExTj5xoWkkthY&callback=initMap"
+    async defer></script>
+    </body>
+</html>
